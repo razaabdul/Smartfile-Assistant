@@ -1,0 +1,309 @@
+Q1 
+
+ Django signals are a mechanism that allows different parts of a Django application to communicate with each other. They enable the execution of specific code in response to particular events happening within the framework, such as saving or deleting a model instance. 
+
+
+* Django comes with several built-in signals, such as:
+
+Model Signals:
+
+1. for example when ever user want to change their name or any other functionilty if we want to  get a email after changes done where we use post_save. 
+
+2. for example when ever user want to change their name or any other functionilty if we want    to   get a email before changes done where we use pre_save.
+
+3. The pre_delete signal is triggered before a model instance is deleted from the database. 
+
+4. The post_delete signal is triggered after a model instance is deleted from the database.
+
+from django.db import models
+from django.db.models.signals import pre_delete, post_delete,pre_save,post_save
+from django.dispatch import receiver
+
+
+
+@receiver(pre_save, sender=Book)
+def capitalize_title(sender, instance, **kwargs):
+    instance.title = instance.title.capitalize()  # Capitalize title before saving
+
+# post_save signal
+@receiver(post_save, sender=Book)
+def book_saved(sender, instance, created, **kwargs):
+    if created:
+        print(f"New book '{instance.title}' by {instance.author} saved successfully!")
+    else:
+        print(f"Book '{
+
+
+
+class Book(models.Model):
+    title = models.CharField(max_length=100)
+    author = models.CharField(max_length=100)
+
+
+class Review(models.Model):
+    book = models.ForeignKey(Book, on_delete=models.CASCADE)
+    content = models.TextField()
+
+# pre_delete signal: Delete reviews before deleting the book
+@receiver(pre_delete, sender=Book)
+def delete_reviews_before_book(sender, instance, **kwargs):
+    reviews = Review.objects.filter(book=instance)
+    reviews.delete()
+    print(f"All reviews for '{instance.title}' are deleted.")
+
+# post_delete signal: Log after the book is deleted
+@receiver(post_delete, sender=Book)
+def log_book_deletion(sender, instance, **kwargs):
+    print(f"The book '{instance.title}' and its reviews have been deleted.")
+
+
+
+
+Q2 
+
+In Django, middleware is a lightweight plugin that can modify the incoming request before it reaches the view and the outgoing response before it’s sent back to the client.it lies between the request and resposnse if request is capable for move towords or not if not it terinates the request.
+
+* Middleware can perform various tasks, such as:
+
+Authentication and authorization		
+Logging and monitoring
+Content compression
+URL rewriting
+Session handling
+Error handling
+
+* use cases of middleware:
+Request Logging
+Authentication and Authorization
+Session Management
+Security
+Redirect Handling
+
+
+Q3 
+
+The Model View Template is a software design pattern. It is a collection of three important components Model View and Template. The Model helps to handle database. It is a data access layer which handles the data.The Template is a presentation layer which handles User Interface part completely. The View is used to execute the business logic and interact with a model to carry data and renders a template.
+
+* Model:
+
+The Model is the data layer of the application. It defines the structure of the data, including the database schema, and provides methods to interact with the database. 
+
+example, if we have a Book model, this class will define the fields of the book (e.g., title, author, published_date) and handle database operations like creating, reading, updating, and deleting book records
+
+* View:
+
+The View is the business logic layer in Django. It handles the request and response cycle.when a user requests a particular URL, the view processes this request, fetches the necessary data from the model, and passes it to a template for rendering. 
+
+* Template:
+
+The Template is the presentation layer, responsible for rendering the data provided by the view into HTML, which is sent to the client’s browser. Templates allow dynamic content to be inserted into static HTML pages. 
+
+Q4
+
+
+ decorator allows us to create wrap another function  around another function in order to extend the behavior of the wrapped function without permanently changing it. 
+
+def log_arguments(func):
+    def wrapper(*args, **kwargs):
+        # Log the arguments of the function
+        print(f"Function {func.__name__} called with arguments: {args}, {kwargs}")
+        
+        # Call the original function and return its result
+        return func(*args, **kwargs)
+    
+    return wrapper
+
+@log_arguments
+def add(a, b):
+    return a + b
+
+@log_arguments
+def greet(name, age=None):
+    return f"Hello {name}, you are {age} years old."
+
+add(5, 10) 
+greet("Alice", age=25)  
+
+
+Q5 
+
+The GIL global interpreter lock  allows only one thread to execute Python bytecode at a time, even on multi-core systems. This means that, in a multi-threaded Python program, only one thread can run Python code at any given moment, even if the program has multiple threads.
+
+* still allow multi-threading in certain scenarios, but it does so in a limited way.
+
+* It allows thread switching: While one thread is running Python code, the GIL can switch to another thread that is ready to run. This gives the illusion that multiple threads are running concurrently
+
+GIL and Thread Switching:The GIL prevents multiple threads from executing Python bytecode at the same time within a single process.
+
+How Thread Switching Happens :Python's threading module allows you to create multiple threads. The operating system (OS) scheduler allocates time slices for each thread.
+
+Why Multi-threading Works in Some Cases :  If a thread is blocked waiting for external data (such as reading from a disk or making an HTTP request), the GIL is released, allowing another thread to run.
+
+
+Q6 
+
+WSGI: A Python spec that defines a standard interface for communication between an application or framework and an application/web server. This was created in order to simplify and standardize communication between these components for consistency and interchangeability. This basically defines an API interface that can be used over other protocols.
+
+- uWSGI is like a translator between a web server like Nginx and your Python application like Django or Flask.It ensures the server and app can "talk" to each other using a shared language, following the WSGI rules.
+
+
+Q7 
+
+arr1 = list(range(10))
+arr2 = arr1
+arr3 = arr1[:]
+Is arr2 == arr3 ?
+
+This assigns arr2 as a reference to the same list object as arr1.
+Any changes made to arr2 will also affect arr1, as they point to the same memory location.
+
+arr3 = arr1[:]:
+
+This creates a shallow copy of arr1.
+arr3 is a new list with the same elements as arr1, but it is a separate object in memory.
+Changes made to arr3 will not affect arr1 or arr2.
+
+-> so changes to arr3 do not affect arr1 or arr2
+
+Q8
+
+In Python, you can hide a class variable (or make it private) by using a double underscore (__)as a prefix to the variable name. This makes the v
+ariable name "name-mangled," meaning it cannot be accessed directly from outside the class.
+
+
+Q9
+
+python manage.py startapp app_name this is the command to create a new app in django 
+we need initialize the app name in installed name in settings 
+
+INSTALLED_APPS = [
+    ...
+    'app_name',
+]
+
+
+Q 10 
+
+Create a file named urls.py in the same folder as the views.py file, and type this code in it.
+from django.urls import path
+from . import views
+
+urlpatterns = [
+    path('members/', views.members, name='members'),
+]
+
+The urls.py file you just created is specific for the members application. We have to do some routing in the root directory my_tennis_club as well. This may seem complicated, but for now, just follow the instructions below.
+
+There is a file called urls.py on the my_tennis_club folder, open that file and add the include module in the import statement, and also add a path() function in the urlpatterns[] list, with arguments that will route users that comes in via 127.0.0.1:8000/.
+my_tennis_club/my_tennis_club/urls.py:
+
+from django.contrib import admin
+from django.urls import include, path
+
+urlpatterns = [
+    path('', include('members.urls')),
+    path('admin/', admin.site.urls),
+
+
+
+Q 11 
+
+Django lets us interact with its database models, i.e. add, delete, modify, and query objects, using a database-abstraction API called ORM(Object Relational Mapper). This article discusses all the functional operations we can perform using Django ORM.
+
+class Album(models.Model): 
+    title = models.CharField(max_length = 30) 
+    artist = models.CharField(max_length = 30) 
+    genre = models.CharField(max_length = 30) 
+  
+    def __str__(self): 
+        return self.title 
+  
+class Song(models.Model): 
+    name = models.CharField(max_length = 100) 
+    album = models.ForeignKey(Album, on_delete = models.CASCADE) 
+  
+    def __str__(self): 
+
+It works as a bridge between your database and your Django app, making it easy to manage and use your database. It’s one of the key features of Django that speeds up development.
+Simplifies database operations using Python.
+Automatically creates the necessary database tables and relationships.
+Helps avoid common errors in manual SQL queries.
+This ORM allows you to focus on the logic of your app rather than writing repetitive database queries.
+
+
+
+
+Q 12 
+
+django support ample of data types :
+postgres 
+mysql 
+dbsqlite 
+maria db 
+oracle 
+Microsoft SQL Server
+
+
+Q13
+
+Template Fragment Caching
+Database Query Caching
+View Caching
+
+
+Q14 
+
+inheritance : This style is used when you only want parents class to hold information that you don’t want out to type for each child model.
+Abstract Base Classes : Used when you want to create a base class with common fields or methods, but you don’t want to create a separate table for it.
+from django.db import models
+
+class CommonInfo(models.Model):
+    name = models.CharField(max_length=100)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        abstract = True
+
+class Author(CommonInfo):
+    bio = models.TextField()
+
+class Publisher(CommonInfo):
+    location = models.CharField(max_length=100)
+
+
+Multi-Table Inheritance:Used when you want each model to have its own database table, but still share common fields from a base model.
+from django.db import models
+
+class Author(models.Model):
+    name = models.CharField(max_length=100)
+
+class Book(Author):
+    title = models.CharField(max_length=100)
+    published_date = models.DateTimeField()
+
+Proxy Models
+Purpose: Used when you want to change the behavior of a model without changing its fields or database structure.
+from django.db import models
+
+class Author(models.Model):
+    name = models.CharField(max_length=100)
+
+class SpecialAuthor(Author):
+    class Meta:
+        proxy = True
+        ordering = ['name']  # Change the default ordering for this proxy model
+
+    def special_method(self):
+        return f"Special Author: {self.name}"
+
+
+Q15
+
+Django provides an authenticate() function to check if a user's credentials (username and password) are valid. This function returns the user object if valid or None if the credentials are incorrect.	 
+
+
+Q16
+
+
+
+
